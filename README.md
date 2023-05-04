@@ -57,3 +57,16 @@ A few examples of extras for this coding challenge:
 4. Running the application in a serverless environment
 
 This is not an exhaustive list of extra features that could be added to this code challenge. At the end of the day, this section is for you to demonstrate any skills you want to show that’s not captured in the core requirement.
+
+able to build locally 
+able to build with docker and docker-compose
+migrated images to aws ecs
+- got stuck here with aws sam, and using with terraform
+- opting in for python aws cdk to deploy  the app?
+1. lets first start with jenkins and exposing it correctly
+2. added jenks with apporpriate subnet and vpc
+2.1 terraform init and terraform plan (still tf needs creds to aws )
+2.2 adding keys for config to use - should be using aws kms for this 
+2.3 aws python cdk for jenkins server, ec2, sec groups, and iam, ecs cluster   services and tasks for both ends of the apps?
+
+3. adding the components for ecs 

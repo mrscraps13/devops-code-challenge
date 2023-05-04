@@ -1,0 +1,13 @@
+version: '2.2'
+services: 
+  backend:
+    image: my-be-lfappv2:v2.1
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: my-be-lfappv2:v2.1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
