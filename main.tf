@@ -215,6 +215,7 @@ resource "aws_ecs_service" "backend_app" {
 #ecs service, lb and task definitions
 # Create a security group to allow traffic to/from the load balancer
 # Define the frontend task definition
+/*
 resource "aws_ecs_task_definition" "frontend_task_definition" {
   family                   = "frontend"
   requires_compatibilities = ["FARGATE"]
@@ -306,3 +307,4 @@ resource "aws_lb" "my_lb" {
     aws_security_group.ecs_lb_sg.id
   ]
 }
+*/

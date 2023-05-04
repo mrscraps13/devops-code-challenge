@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_ec2_key_pair as ec2_kp,
     aws_ec2_instance as ec2_inst,
+    aws_ecs as ecs,
 )
 
 class JenkinsStack(core.Stack):
@@ -49,7 +50,7 @@ class JenkinsStack(core.Stack):
         # Tag the instance
         core.Tags.of(instance).add("Name", "Jenkins Instance")
 
-app = core.App()
+
 
 JenkinsStack(app, "jenkins-stack",
     env=core.Environment(
@@ -60,5 +61,82 @@ JenkinsStack(app, "jenkins-stack",
     subnet_id="subnet-bcc7d8d5",
     key_pair_name="my-key-pair"
 )
+
+
+
+#ecs stack and services 
+class MyStack(core.Stack):
+
+    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        # Define VPC
+        vpc = ec2.Vpc(
+            self, "MyVpc",
+            cidr="10.0.0.0/16",
+            max_azs=2,
+            subnet_configuration=[
+                ec2.SubnetConfiguration(
+                    name="public",
+                    subnet_type=ec2.SubnetType.PUBLIC,
+                    cidr_mask=24
+                ),
+                ec2.SubnetConfiguration(
+                    name="private",
+                    subnet_type=ec2.SubnetType.PRIVATE,
+                    cidr_mask=24
+                )
+            ]
+        )
+
+        # Define ECS cluster
+        cluster = ecs.Cluster(
+            self, "MyCluster",
+            vpc=vpc,
+        )
+
+        # Define frontend task
+        frontend_task = ecs.FargateTaskDefinition(
+            self, "MyFrontendTask",
+        )
+        frontend_task.add_container(
+            "MyFrontendContainer",
+            image=ecs.ContainerImage.from_registry("224544193422.dkr.ecr.us-east-2.amazonaws.com/lfapp:my-frontend-app"),
+            memory_limit_mib=512,
+        )
+
+        # Define backend task
+        backend_task = ecs.FargateTaskDefinition(
+            self, "MyBackendTask",
+        )
+        backend_task.add_container(
+            "MyBackendContainer",
+            image=ecs.ContainerImage.from_registry("224544193422.dkr.ecr.us-east-2.amazonaws.com/lfapp:my-backend-app"),
+            memory_limit_mib=512,
+        )
+
+        # Define frontend service
+        frontend_service = ecs.FargateService(
+            self, "MyFrontendService",
+            cluster=cluster,
+            task_definition=frontend_task,
+            desired_count=1,
+            assign_public_ip=True,
+        )
+        frontend_service.connections.allow_from_any_ipv4(
+            ec2.Port.tcp(80),
+            "Internet access on port 80",
+        )
+
+        # Define backend service
+        backend_service = ecs.FargateService(
+            self, "MyBackendService",
+            cluster=cluster,
+            task_definition=backend_task,
+            desired_count=1,
+            assign_public_ip=False,
+        )
+
+app = core.App()
 
 app.synth()
